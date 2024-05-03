@@ -18,7 +18,6 @@ class Checkers:
         print()
 
     def valid_moves(self, player):
-        # Generate and return a list of valid moves for the player
         moves = []
         directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # Directions pieces can move
         for y in range(8):
@@ -28,7 +27,13 @@ class Checkers:
                         ny, nx = y + dy, x + dx
                         if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx] == '.':
                             moves.append(((x, y), (nx, ny)))
+                        # Checking for captures
+                        if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx].lower() != player and self.board[ny][nx] != '.':
+                            ny2, nx2 = ny + dy, nx + dx
+                            if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
+                                moves.append(((x, y), (nx2, ny2)))
         return moves
+
 
     def make_move(self, move):
         x1, y1 = move[0]
