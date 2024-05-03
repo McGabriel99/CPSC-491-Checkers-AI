@@ -35,13 +35,12 @@ class Checkers:
         directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # Directions pieces can move
         for y in range(8):
             for x in range(8):
-                piece = self.board[y][x].lower()
-                if piece == player or (piece in ['b', 'w'] and 'king' in self.board[y][x]):
-                    is_king = 'king' in self.board[y][x]
+                piece = self.board[y][x]
+                if piece.lower() == player.lower():
+                    is_king = piece.isupper()  # Kings are upper case
                     for dy, dx in directions:
                         ny, nx = y + dy, x + dx
-                        # Allow backward moves for kings
-                        if is_king or dy * (1 if player == 'b' else -1) > 0:
+                        if is_king or (dy * (1 if player == 'b' else -1) > 0):  # Allow backward moves for kings
                             if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx] == '.':
                                 moves.append(((x, y), (nx, ny)))
                             # Check for possible captures
@@ -53,6 +52,7 @@ class Checkers:
 
 
 
+
     def make_move(self, move):
         x1, y1 = move[0]
         x2, y2 = move[1]
@@ -61,7 +61,6 @@ class Checkers:
 
         # Check if the move is a jump
         if abs(x2 - x1) == 2 or abs(y2 - y1) == 2:
-            # Calculate the position of the jumped piece
             jumped_x = (x1 + x2) // 2
             jumped_y = (y1 + y2) // 2
             self.board[jumped_y][jumped_x] = '.'  # Remove the jumped piece
@@ -71,7 +70,6 @@ class Checkers:
             self.board[y2][x2] = 'W'
         elif (y2 == 7 and self.board[y2][x2] == 'b'):
             self.board[y2][x2] = 'B'
-
 
 
     def ai_move(self, player):
