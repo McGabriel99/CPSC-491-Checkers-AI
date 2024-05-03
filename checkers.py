@@ -17,32 +17,32 @@ class Checkers:
             print(' '.join(row))
         print()
 
-    def valid_moves(self, player):
+    def get_valid_moves(self, pos):
+        player = self.board[pos[0]][pos[1]].lower()
         moves = []
-        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # Directions pieces can move
-        for y in range(8):
-            for x in range(8):
-                if self.board[y][x].lower() == player:
-                    for dy, dx in directions:
-                        ny, nx = y + dy, x + dx
-                        if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx] == '.':
-                            moves.append(((x, y), (nx, ny)))
-                        # Checking for captures
-                        if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx].lower() != player and self.board[ny][nx] != '.':
-                            ny2, nx2 = ny + dy, nx + dx
-                            if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
-                                moves.append(((x, y), (nx2, ny2)))
+        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        x, y = pos
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < 8 and 0 <= ny < 8 and self.board[ny][nx] == '.':
+                moves.append((pos, (nx, ny)))
+            # Add logic for capturing moves
         return moves
 
 
-    def make_move(self, move):
-        x1, y1 = move[0]
-        x2, y2 = move[1]
-        self.board[y2][x2] = self.board[y1][x1]
-        self.board[y1][x1] = '.'
+
+    def make_move(self, start, end, valid_moves):
+        if (start, end) in valid_moves:
+            x1, y1 = start
+            x2, y2 = end
+            self.board[y2][x2] = self.board[y1][x1]
+            self.board[y1][x1] = '.'
+            return True
+        return False
+
 
     def ai_move(self, player):
-        moves = self.valid_moves(player)
+        moves = self.get_valid_moves(player)
         # This is a simple AI: Just pick the first available move
         return moves[0] if moves else None
 
@@ -54,7 +54,7 @@ def main():
         game.print_board()
         if current_player == 'w':
             print("Your turn (White).")
-            moves = game.valid_moves('w')
+            moves = game.get_valid_moves('w')
             if not moves:
                 print("No moves available. Game over.")
                 break
