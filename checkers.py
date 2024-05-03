@@ -17,29 +17,62 @@ class Checkers:
             print(' '.join(row))
         print()
 
+    def check_for_win(self):
+        white_exists = any('w' in row or 'W' in row for row in self.board)
+        black_exists = any('b' in row or 'B' in row for row in self.board)
+        if not white_exists:
+            return 'Black wins'
+        elif not black_exists:
+            return 'White wins'
+        return None
+    
+    def current_player_can_move(self, player):
+        moves = self.valid_moves(player)
+        return bool(moves)
+
     def valid_moves(self, player):
         moves = []
         directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # Directions pieces can move
         for y in range(8):
             for x in range(8):
-                if self.board[y][x].lower() == player:
+                piece = self.board[y][x].lower()
+                if piece == player or (piece in ['b', 'w'] and 'king' in self.board[y][x]):
+                    is_king = 'king' in self.board[y][x]
                     for dy, dx in directions:
                         ny, nx = y + dy, x + dx
-                        if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx] == '.':
-                            moves.append(((x, y), (nx, ny)))
-                        # Checking for captures
-                        if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx].lower() != player and self.board[ny][nx] != '.':
-                            ny2, nx2 = ny + dy, nx + dx
-                            if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
-                                moves.append(((x, y), (nx2, ny2)))
+                        # Allow backward moves for kings
+                        if is_king or dy * (1 if player == 'b' else -1) > 0:
+                            if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx] == '.':
+                                moves.append(((x, y), (nx, ny)))
+                            # Check for possible captures
+                            if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx].lower() != player and self.board[ny][nx] != '.':
+                                ny2, nx2 = ny + dy, nx + dx
+                                if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
+                                    moves.append(((x, y), (nx2, ny2)))
         return moves
+
 
 
     def make_move(self, move):
         x1, y1 = move[0]
         x2, y2 = move[1]
-        self.board[y2][x2] = self.board[y1][x1]
-        self.board[y1][x1] = '.'
+        self.board[y2][x2] = self.board[y1][x1]  # Move the piece to the new position
+        self.board[y1][x1] = '.'  # Clear the old position
+
+        # Check if the move is a jump
+        if abs(x2 - x1) == 2 or abs(y2 - y1) == 2:
+            # Calculate the position of the jumped piece
+            jumped_x = (x1 + x2) // 2
+            jumped_y = (y1 + y2) // 2
+            self.board[jumped_y][jumped_x] = '.'  # Remove the jumped piece
+
+        # Promote to king if reaching the opposite end
+        if (y2 == 0 and self.board[y2][x2] == 'w'):
+            self.board[y2][x2] = 'W'
+        elif (y2 == 7 and self.board[y2][x2] == 'b'):
+            self.board[y2][x2] = 'B'
+
+
 
     def ai_move(self, player):
         moves = self.valid_moves(player)
@@ -52,12 +85,20 @@ def main():
 
     while True:
         game.print_board()
+
+        # Check for a win or if the current player can make a move
+        win = game.check_for_win()
+        if win:
+            print(win)
+            break
+
+        if not game.current_player_can_move(current_player):
+            print(f"{current_player} has no moves left. Game over.")
+            break
+
         if current_player == 'w':
             print("Your turn (White).")
             moves = game.valid_moves('w')
-            if not moves:
-                print("No moves available. Game over.")
-                break
             print("Available moves:", moves)
             move = input("Enter your move (e.g., '1,2 to 3,4'): ")
             move = move.split(" to ")
@@ -71,12 +112,10 @@ def main():
         else:
             print("AI's turn (Black).")
             move = game.ai_move('b')
-            if not move:
-                print("No moves available. Game over.")
-                break
             print("AI moves from", move[0], "to", move[1])
             game.make_move(move)
             current_player = 'w'
 
 if __name__ == "__main__":
     main()
+
