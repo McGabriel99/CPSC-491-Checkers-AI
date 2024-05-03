@@ -11,6 +11,10 @@ class Checkers:
             ['w', '.', 'w', '.', 'w', '.', 'w', '.'],
             ['.', 'w', '.', 'w', '.', 'w', '.', 'w']
         ]
+        self.current_player = 'w'
+
+    def switch_player(self):
+        self.current_player = 'b' if self.current_player == 'w' else 'w'
 
     def print_board(self):
         for row in self.board:
@@ -18,16 +22,32 @@ class Checkers:
         print()
 
     def get_valid_moves(self, pos):
-        player = self.board[pos[0]][pos[1]].lower()
-        moves = []
-        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
         x, y = pos
+        piece = self.board[y][x]
+        if piece.lower() != self.current_player:
+            return []  # No moves if it's not the player's piece
+
+        moves = []
+        directions = self.get_directions(piece)
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
+            # Check simple move
             if 0 <= nx < 8 and 0 <= ny < 8 and self.board[ny][nx] == '.':
                 moves.append((pos, (nx, ny)))
-            # Add logic for capturing moves
+            # Check captures
+            elif 0 <= nx < 8 and 0 <= ny < 8 and self.board[ny][nx].lower() != piece.lower() and self.board[ny][nx] != '.':
+                jx, jy = nx + dx, ny + dy
+                if 0 <= jx < 8 and 0 <= jy < 8 and self.board[jy][jx] == '.':
+                    moves.append((pos, (jx, jy)))
         return moves
+    
+    def get_directions(self, piece):
+        if piece == 'w':
+            return [(-1, -1), (-1, 1)]  # Normal white moves up
+        elif piece == 'b':
+            return [(1, -1), (1, 1)]  # Normal black moves down
+        else:
+            return [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # Kings move in all directions
 
 
 
@@ -37,6 +57,10 @@ class Checkers:
             x2, y2 = end
             self.board[y2][x2] = self.board[y1][x1]
             self.board[y1][x1] = '.'
+            # Remove the jumped piece if it's a capture move
+            if abs(x2 - x1) == 2 or abs(y2 - y1) == 2:
+                mx, my = (x1 + x2) // 2, (y1 + y2) // 2
+                self.board[my][mx] = '.'
             return True
         return False
 

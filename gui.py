@@ -48,10 +48,10 @@ def highlight_moves(screen, valid_moves):
 
 def main():
     clock = pygame.time.Clock()
-    game = Checkers()
+    game = Checkers()  # Initialize the Checkers game, which should have a 'current_player' attribute
     running = True
-    selected_piece = None
-    valid_moves = []
+    selected_piece = None  # Tracks the currently selected piece
+    valid_moves = []  # List of valid moves for the selected piece
 
     while running:
         for event in pygame.event.get():
@@ -60,21 +60,24 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
-                if selected_piece is None:
-                    selected_piece = (row, col)
-                    valid_moves = game.get_valid_moves(selected_piece)
-                else:
+                if selected_piece:
+                    # Attempt to make a move
                     move_result = game.make_move(selected_piece, (row, col), valid_moves)
                     if move_result:
                         selected_piece = None
                         valid_moves = []
+                        game.switch_player()  # Switch turns if the move was successful
                     else:
-                        selected_piece = (row, col)
-                        valid_moves = game.get_valid_moves(selected_piece)
+                        selected_piece = None  # Deselect piece if the move was invalid
+                        valid_moves = []  # Clear invalid moves
+                # New selection process
+                if game.board[row][col].lower() == game.current_player:
+                    selected_piece = (row, col)
+                    valid_moves = game.get_valid_moves(selected_piece)
 
         draw_board(screen)
         draw_pieces(screen, game.board)
-        highlight_moves(screen, [move[1] for move in valid_moves])
+        highlight_moves(screen, [move[1] for move in valid_moves])  # Ensure moves are highlighted correctly
         pygame.display.flip()
         clock.tick(60)
 
