@@ -22,17 +22,22 @@ class Checkers:
         directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # Directions pieces can move
         for y in range(8):
             for x in range(8):
-                if self.board[y][x].lower() == player:
+                piece = self.board[y][x].lower()
+                if piece == player or (piece in ['b', 'w'] and 'king' in self.board[y][x]):
+                    is_king = 'king' in self.board[y][x]
                     for dy, dx in directions:
                         ny, nx = y + dy, x + dx
-                        if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx] == '.':
-                            moves.append(((x, y), (nx, ny)))
-                        # Checking for captures
-                        if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx].lower() != player and self.board[ny][nx] != '.':
-                            ny2, nx2 = ny + dy, nx + dx
-                            if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
-                                moves.append(((x, y), (nx2, ny2)))
+                        # Allow backward moves for kings
+                        if is_king or dy * (1 if player == 'b' else -1) > 0:
+                            if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx] == '.':
+                                moves.append(((x, y), (nx, ny)))
+                            # Check for possible captures
+                            if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx].lower() != player and self.board[ny][nx] != '.':
+                                ny2, nx2 = ny + dy, nx + dx
+                                if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
+                                    moves.append(((x, y), (nx2, ny2)))
         return moves
+
 
 
     def make_move(self, move):
@@ -40,6 +45,12 @@ class Checkers:
         x2, y2 = move[1]
         self.board[y2][x2] = self.board[y1][x1]
         self.board[y1][x1] = '.'
+        # Check for king promotion
+        if y2 == 0 and self.board[y2][x2] == 'w':
+            self.board[y2][x2] = 'W'
+        elif y2 == 7 and self.board[y2][x2] == 'b':
+            self.board[y2][x2] = 'B'
+
 
     def ai_move(self, player):
         moves = self.valid_moves(player)
