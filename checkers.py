@@ -17,6 +17,19 @@ class Checkers:
             print(' '.join(row))
         print()
 
+    def check_for_win(self):
+        white_exists = any('w' in row or 'W' in row for row in self.board)
+        black_exists = any('b' in row or 'B' in row for row in self.board)
+        if not white_exists:
+            return 'Black wins'
+        elif not black_exists:
+            return 'White wins'
+        return None
+    
+    def current_player_can_move(self, player):
+        moves = self.valid_moves(player)
+        return bool(moves)
+
     def valid_moves(self, player):
         moves = []
         directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # Directions pieces can move
@@ -72,12 +85,20 @@ def main():
 
     while True:
         game.print_board()
+
+        # Check for a win or if the current player can make a move
+        win = game.check_for_win()
+        if win:
+            print(win)
+            break
+
+        if not game.current_player_can_move(current_player):
+            print(f"{current_player} has no moves left. Game over.")
+            break
+
         if current_player == 'w':
             print("Your turn (White).")
             moves = game.valid_moves('w')
-            if not moves:
-                print("No moves available. Game over.")
-                break
             print("Available moves:", moves)
             move = input("Enter your move (e.g., '1,2 to 3,4'): ")
             move = move.split(" to ")
@@ -91,12 +112,10 @@ def main():
         else:
             print("AI's turn (Black).")
             move = game.ai_move('b')
-            if not move:
-                print("No moves available. Game over.")
-                break
             print("AI moves from", move[0], "to", move[1])
             game.make_move(move)
             current_player = 'w'
 
 if __name__ == "__main__":
     main()
+
