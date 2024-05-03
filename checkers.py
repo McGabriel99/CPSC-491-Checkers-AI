@@ -43,13 +43,22 @@ class Checkers:
     def make_move(self, move):
         x1, y1 = move[0]
         x2, y2 = move[1]
-        self.board[y2][x2] = self.board[y1][x1]
-        self.board[y1][x1] = '.'
-        # Check for king promotion
-        if y2 == 0 and self.board[y2][x2] == 'w':
+        self.board[y2][x2] = self.board[y1][x1]  # Move the piece to the new position
+        self.board[y1][x1] = '.'  # Clear the old position
+
+        # Check if the move is a jump
+        if abs(x2 - x1) == 2 or abs(y2 - y1) == 2:
+            # Calculate the position of the jumped piece
+            jumped_x = (x1 + x2) // 2
+            jumped_y = (y1 + y2) // 2
+            self.board[jumped_y][jumped_x] = '.'  # Remove the jumped piece
+
+        # Promote to king if reaching the opposite end
+        if (y2 == 0 and self.board[y2][x2] == 'w'):
             self.board[y2][x2] = 'W'
-        elif y2 == 7 and self.board[y2][x2] == 'b':
+        elif (y2 == 7 and self.board[y2][x2] == 'b'):
             self.board[y2][x2] = 'B'
+
 
 
     def ai_move(self, player):
