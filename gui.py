@@ -53,18 +53,19 @@ def main():
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
                 if selected_piece:
-                    start, end = selected_piece, (row, col)
-                    if end in [move[1] for move in valid_moves]:  # Check if end position is in valid_moves
+                    start, end = selected_piece, (col, row)
+                    if end in [move[1] for move in valid_moves]:
                         game.make_move(start, end)
                         selected_piece = None
                         valid_moves = []
                     else:
                         print("Invalid move. Try again.")
-                        selected_piece = None  # Deselect piece on invalid move
+                        selected_piece = None  # Optionally deselect on invalid move
                 else:
-                    selected_piece = (row, col)
-                    valid_moves = game.valid_moves(game.board[row][col])  # Ensure this fetches correct piece
-
+                    selected_piece = (col, row)
+                    print(f"Selected piece at row {row}, col {col}")
+                    valid_moves = game.valid_moves((col, row))  # Ensure this fetches correct piece
+                    print(f"Valid moves from ({col}, {row}): {valid_moves}")
 
         draw_board(screen)
         draw_pieces(screen, game.board)

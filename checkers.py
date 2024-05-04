@@ -17,22 +17,29 @@ class Checkers:
             print(' '.join(row))
         print()
 
-    def valid_moves(self, player):
+    def is_king(self, piece):
+        # Assuming kings are uppercase
+        return piece.isupper()
+
+    def valid_moves(self, piece_position):
+        x, y = piece_position
         moves = []
-        directions = [(-1, -1), (-1, 1)] if player == 'w' else [(1, -1), (1, 1)]  # Only forward moves
-        for y in range(8):
-            for x in range(8):
-                piece = self.board[y][x]
-                if piece.lower() == player:
-                    for dy, dx in directions:
-                        ny, nx = y + dy, x + dx
-                        if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx] == '.':
-                            moves.append(((x, y), (nx, ny)))
-                        elif 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx].lower() != player:
-                            ny2, nx2 = ny + dy, nx + dx
-                            if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
-                                moves.append(((x, y), (nx2, ny2)))
+        player = self.board[y][x].lower()
+        directions = [(-1, -1), (-1, 1)] if player == 'w' else [(1, -1), (1, 1)]
+
+        for dy, dx in directions:
+            ny, nx = y + dy, x + dx
+            # Normal move
+            if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx] == '.':
+                moves.append(((x, y), (nx, ny)))
+            # Capture move
+            elif 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx].lower() != player and self.board[ny][nx] != '.':
+                ny2, nx2 = ny + dy, nx + dx
+                if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
+                    moves.append(((x, y), (nx2, ny2)))
+
         return moves
+
 
 
     def make_move(self, start, end):
