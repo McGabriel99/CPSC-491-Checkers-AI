@@ -11,17 +11,29 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREY = (128, 128, 128)
 BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
 
 # Initialize Pygame
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Checkers")
 
-def draw_board(screen):
-    screen.fill(BLACK)
+def draw_board(screen, selected_piece, valid_moves):
     for row in range(ROWS):
-        for col in range(row % 2, ROWS, 2):
-            pygame.draw.rect(screen, RED, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+        for col in range(COLS):
+            color = BLACK if (row + col) % 2 == 0 else RED
+            pygame.draw.rect(screen, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+
+    # Highlight the selected piece
+    if selected_piece:
+        sx, sy = selected_piece
+        pygame.draw.rect(screen, YELLOW, (sx * SQUARE_SIZE, sy * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+
+    # Highlight valid moves
+    for move in valid_moves:
+        _, (end_x, end_y) = move
+        pygame.draw.rect(screen, BLUE, (end_x * SQUARE_SIZE, end_y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 5)  # Draw a blue border
+
 
 def draw_pieces(screen, board):
     for y in range(ROWS):
@@ -67,7 +79,7 @@ def main():
                     valid_moves = game.valid_moves((col, row))  # Ensure this fetches correct piece
                     print(f"Valid moves from ({col}, {row}): {valid_moves}")
 
-        draw_board(screen)
+        draw_board(screen, selected_piece, valid_moves)
         draw_pieces(screen, game.board)
         pygame.display.flip()
         clock.tick(60)
