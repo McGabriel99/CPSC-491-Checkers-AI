@@ -48,6 +48,12 @@ class Checkers:
         self.board[y2][x2] = self.board[y1][x1]  # Move the piece
         self.board[y1][x1] = '.'  # Clear the original position
 
+        # Check if the move is a jump
+        if abs(x2 - x1) == 2 or abs(y2 - y1) == 2:
+            jumped_x = x1 + (x2 - x1) // 2
+            jumped_y = y1 + (y2 - y1) // 2
+            self.board[jumped_y][jumped_x] = '.'  # Remove the jumped piece
+
     def ai_move(self, player):
         moves = self.valid_moves(player)
         # This is a simple AI: Just pick the first available move
