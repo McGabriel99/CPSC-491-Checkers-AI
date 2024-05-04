@@ -24,6 +24,7 @@ class Checkers:
     def get_valid_moves(self, pos):
         x, y = pos
         piece = self.board[y][x]
+        print(f"Checking moves for {piece} at ({x}, {y})")
         if piece.lower() != self.current_player or piece == '.':
             return []
         moves = []
