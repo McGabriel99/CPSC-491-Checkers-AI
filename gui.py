@@ -41,8 +41,13 @@ def get_row_col_from_mouse(pos):
 
 
 def highlight_moves(screen, valid_moves):
-    for _, (row, col) in valid_moves:  # Ensure we only highlight the destination squares
-        pygame.draw.rect(screen, BLUE, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 5)
+    for move in valid_moves:
+        # Ensure that move is a tuple containing two tuples
+        if isinstance(move, tuple) and len(move) == 2 and all(isinstance(m, tuple) for m in move):
+            _, (row, col) = move
+            pygame.draw.rect(screen, BLUE, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 5)
+        else:
+            print(f"Invalid move format: {move}")
 
 
 
@@ -60,20 +65,20 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
-                if selected_piece and (row, col) in [mv[1] for mv in valid_moves]:
-                    # Attempt to make a move only if the click is on a valid move position
-                    move_result = game.make_move(selected_piece, (row, col), valid_moves)
-                    if move_result:
-                        selected_piece = None
-                        valid_moves = []
-                        game.switch_player()  # Switch turns only on a successful move
-                    else:
-                        selected_piece = None  # Deselect on failed move
-                        valid_moves = []
+                if selected_piece:
+                    if (row, col) in [mv[1] for mv in valid_moves]:  # This list comprehension needs to be correct
+                        move_result = game.make_move(selected_piece, (row, col), valid_moves)
+                        if move_result:
+                            selected_piece = None
+                            valid_moves = []
+                            game.switch_player()
+                        else:
+                            selected_piece = None
+                            valid_moves = []
                 elif game.board[row][col].lower() == game.current_player and game.board[row][col] != '.':
                     selected_piece = (row, col)
                     valid_moves = game.get_valid_moves(selected_piece)
-                    print(valid_moves)  # Debug print moved here to show only when a piece is selected
+                    print(f"Selected {selected_piece} with moves: {valid_moves}")
 
         draw_board(screen)
         draw_pieces(screen, game.board)

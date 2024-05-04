@@ -24,25 +24,21 @@ class Checkers:
     def get_valid_moves(self, pos):
         x, y = pos
         piece = self.board[y][x]
-        if piece == '.' or piece.lower() != self.current_player:
-            return []  # Skip if no piece or not current player's piece
-
+        if piece.lower() != self.current_player or piece == '.':
+            return []
         moves = []
         player = piece.lower()
         directions = [(-1, -1), (-1, 1)] if player == 'w' or piece.isupper() else [(1, -1), (1, 1)]
-        if piece.isupper():  # Kings can move in all four directions
-            directions += [(-1 * d[0], -1 * d[1]) for d in directions]
-
+        if piece.isupper():
+            directions.extend([(-d[0], -d[1]) for d in directions])
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            if 0 <= nx < 8 and 0 <= ny < 8:
-                if self.board[ny][nx] == '.':
-                    moves.append((pos, (nx, ny)))
-                elif self.board[ny][nx].lower() != player and self.board[ny][nx] != '.':
-                    # Check for capturing move
-                    nx2, ny2 = nx + dx, ny + dy
-                    if 0 <= nx2 < 8 and 0 <= ny2 < 8 and self.board[ny2][nx2] == '.':
-                        moves.append((pos, (nx2, ny2)))
+            if 0 <= nx < 8 and 0 <= ny < 8 and self.board[ny][nx] == '.':
+                moves.append(((x, y), (nx, ny)))
+            elif 0 <= nx < 8 and 0 <= ny < 8 and self.board[ny][nx].lower() != player and self.board[ny][nx] != '.':
+                jx, jy = nx + dx, ny + dy
+                if 0 <= jx < 8 and 0 <= jy < 8 and self.board[jy][jx] == '.':
+                    moves.append(((x, y), (jx, jy)))
         return moves
     
     def get_directions(self, piece):
