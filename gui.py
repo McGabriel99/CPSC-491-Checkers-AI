@@ -22,7 +22,7 @@ def draw_board(screen, selected_piece, valid_moves):
     for row in range(ROWS):
         for col in range(COLS):
             color = BLACK if (row + col) % 2 == 0 else RED
-            pygame.draw.rect(screen, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+            pygame.draw.rect(screen, color, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
     # Highlight the selected piece and valid moves only if a piece is selected
     if selected_piece:
@@ -47,7 +47,6 @@ def get_row_col_from_mouse(pos):
     x, y = pos
     row = x // SQUARE_SIZE
     col = y // SQUARE_SIZE
-    print(f"Selected row: {row}, col: {col}")
     return row, col
 
 def main():
