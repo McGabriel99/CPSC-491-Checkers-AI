@@ -1,6 +1,6 @@
 import pygame
 import sys
-from checkers import Checkers
+from checkers_helper import Checkers
 
 # Constants
 WIDTH, HEIGHT = 800, 800
@@ -17,6 +17,8 @@ YELLOW = (255, 255, 0)
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Checkers")
+crown_image = pygame.image.load('images/crown.png')
+crown_image = pygame.transform.scale(crown_image, (SQUARE_SIZE//2, SQUARE_SIZE//2))
 
 def draw_board(screen, selected_piece, valid_moves):
     for row in range(ROWS):
@@ -40,11 +42,18 @@ def draw_pieces(screen, board):
         for y in range(COLS):
             piece = board[y][x]
             if piece != '.':
+                center_x = x * SQUARE_SIZE + SQUARE_SIZE // 2
+                center_y = x * SQUARE_SIZE + SQUARE_SIZE // 2
+
                 if piece.lower() == 'w': 
                     color = WHITE
                 elif piece.lower() == 'b':
                     color = GREY 
                 pygame.draw.circle(screen, color, (x * SQUARE_SIZE + SQUARE_SIZE // 2, y * SQUARE_SIZE + SQUARE_SIZE // 2), SQUARE_SIZE // 2 - 10)
+
+                # Draw crown if the piece is a king
+                if piece.isupper():
+                    screen.blit(crown_image, (center_x - crown_image.get_width() // 2, center_y - crown_image.get_height() // 2))
 
 def get_row_col_from_mouse(pos):
     x, y = pos
@@ -67,8 +76,10 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
+                print(f"Selected piece: {(row, col)}")
                 if selected_piece and (row, col) in [move[1] for move in valid_moves]:
                     game.make_move(selected_piece, (row, col))
+                    print(f"Moved from {selected_piece} to {(row, col)}")
                     selected_piece = None
                     valid_moves = []
                     current_player = 'b' if current_player == 'w' else 'w'
