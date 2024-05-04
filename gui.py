@@ -41,17 +41,17 @@ def get_row_col_from_mouse(pos):
 
 
 def highlight_moves(screen, valid_moves):
-    for row, col in valid_moves:
+    for _, (row, col) in valid_moves:  # Ensure we only highlight the destination squares
         pygame.draw.rect(screen, BLUE, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 5)
 
 
 
 def main():
     clock = pygame.time.Clock()
-    game = Checkers()  # Initialize the Checkers game, which should have a 'current_player' attribute
+    game = Checkers()
     running = True
-    selected_piece = None  # Tracks the currently selected piece
-    valid_moves = []  # List of valid moves for the selected piece
+    selected_piece = None
+    valid_moves = []
 
     while running:
         for event in pygame.event.get():
@@ -60,24 +60,24 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
-                if selected_piece:
-                    # Attempt to make a move
+                if selected_piece and (row, col) in [mv[1] for mv in valid_moves]:
+                    # Attempt to make a move only if the click is on a valid move position
                     move_result = game.make_move(selected_piece, (row, col), valid_moves)
                     if move_result:
                         selected_piece = None
                         valid_moves = []
-                        game.switch_player()  # Switch turns if the move was successful
+                        game.switch_player()  # Switch turns only on a successful move
                     else:
-                        selected_piece = None  # Deselect piece if the move was invalid
-                        valid_moves = []  # Clear invalid moves
-                # New selection process
-                if game.board[row][col].lower() == game.current_player:
+                        selected_piece = None  # Deselect on failed move
+                        valid_moves = []
+                elif game.board[row][col].lower() == game.current_player and game.board[row][col] != '.':
                     selected_piece = (row, col)
                     valid_moves = game.get_valid_moves(selected_piece)
+                    print(valid_moves)  # Debug print moved here to show only when a piece is selected
 
         draw_board(screen)
         draw_pieces(screen, game.board)
-        highlight_moves(screen, [move[1] for move in valid_moves])  # Ensure moves are highlighted correctly
+        highlight_moves(screen, [mv[1] for mv in valid_moves])
         pygame.display.flip()
         clock.tick(60)
 
