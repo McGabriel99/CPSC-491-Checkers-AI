@@ -24,15 +24,15 @@ def draw_board(screen, selected_piece, valid_moves):
             color = BLACK if (row + col) % 2 == 0 else RED
             pygame.draw.rect(screen, color, (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-    # Highlight the selected piece
+    # Highlight the selected piece and valid moves only if a piece is selected
     if selected_piece:
         sx, sy = selected_piece
-        pygame.draw.rect(screen, YELLOW, (sx * SQUARE_SIZE, sy * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+        pygame.draw.rect(screen, YELLOW, (sx * SQUARE_SIZE, sy * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))  # Highlight selected piece
 
-    # Highlight valid moves
-    for move in valid_moves:
-        _, (end_x, end_y) = move
-        pygame.draw.rect(screen, BLUE, (end_x * SQUARE_SIZE, end_y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 5)  # Draw a blue border
+        # Highlight valid moves
+        for move in valid_moves:
+            _, (end_x, end_y) = move
+            pygame.draw.rect(screen, BLUE, (end_x * SQUARE_SIZE, end_y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 5)  # Draw a blue border
 
 
 def draw_pieces(screen, board):
@@ -56,6 +56,7 @@ def main():
     running = True
     selected_piece = None
     valid_moves = []
+    current_player = 'w'
 
     while running:
         for event in pygame.event.get():
@@ -70,6 +71,7 @@ def main():
                         game.make_move(start, end)
                         selected_piece = None
                         valid_moves = []
+                        current_player = 'b' if current_player == 'w' else 'w'
                     else:
                         print("Invalid move. Try again.")
                         selected_piece = None  # Optionally deselect on invalid move
