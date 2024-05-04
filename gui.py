@@ -43,7 +43,7 @@ def draw_pieces(screen, board):
             piece = board[y][x]
             if piece != '.':
                 center_x = x * SQUARE_SIZE + SQUARE_SIZE // 2
-                center_y = x * SQUARE_SIZE + SQUARE_SIZE // 2
+                center_y = y * SQUARE_SIZE + SQUARE_SIZE // 2
 
                 if piece.lower() == 'w': 
                     color = WHITE
