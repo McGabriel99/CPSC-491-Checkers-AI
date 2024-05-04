@@ -40,7 +40,10 @@ def draw_pieces(screen, board):
         for y in range(COLS):
             piece = board[y][x]
             if piece != '.':
-                color = WHITE if piece.lower() == 'w' else GREY
+                if piece.lower() == 'w': 
+                    color = WHITE
+                elif piece.lower() == 'b':
+                    color = GREY 
                 pygame.draw.circle(screen, color, (x * SQUARE_SIZE + SQUARE_SIZE // 2, y * SQUARE_SIZE + SQUARE_SIZE // 2), SQUARE_SIZE // 2 - 10)
 
 def get_row_col_from_mouse(pos):
@@ -55,6 +58,7 @@ def main():
     running = True
     selected_piece = None
     valid_moves = []
+    current_player = 'w'
 
     while running:
         for event in pygame.event.get():
@@ -63,23 +67,14 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 row, col = get_row_col_from_mouse(pos)
-                if selected_piece:
-                    print(f"Starting pos: {selected_piece}")
-                    start, end = selected_piece, (row, col)
-                    if end in [move[1] for move in valid_moves]:
-                        print(f"Ending move: {end}")
-                        game.make_move(start, end)
-                        print(f"Moved from {start} to {end}")
-                        selected_piece = None
-                        valid_moves = []
-                    else:
-                        print("Invalid move. Try again.")
-                        selected_piece = None  # Optionally deselect on invalid move
-                else:
+                if selected_piece and (row, col) in [move[1] for move in valid_moves]:
+                    game.make_move(selected_piece, (row, col))
+                    selected_piece = None
+                    valid_moves = []
+                    current_player = 'b' if current_player == 'w' else 'w'
+                elif game.board[col][row] != '.' and game.board[col][row].lower() == current_player:
                     selected_piece = (row, col)
-                    print(f"Selected piece at row {row}, col {col}")
-                    valid_moves = game.valid_moves((row, col))  # Ensure this fetches correct piece
-                    print(f"Valid moves from ({row}, {col}): {valid_moves}")
+                    valid_moves = game.valid_moves((row, col))
 
         draw_board(screen, selected_piece, valid_moves)
         draw_pieces(screen, game.board)
