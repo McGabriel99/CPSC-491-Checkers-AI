@@ -35,11 +35,11 @@ class Checkers:
         return moves
 
 
-    def make_move(self, move):
-        x1, y1 = move[0]
-        x2, y2 = move[1]
-        self.board[y2][x2] = self.board[y1][x1]
-        self.board[y1][x1] = '.'
+    def make_move(self, start, end):
+        x1, y1 = start
+        x2, y2 = end
+        self.board[y2][x2] = self.board[y1][x1]  # Move the piece
+        self.board[y1][x1] = '.'  # Clear the original position
 
     def ai_move(self, player):
         moves = self.valid_moves(player)
