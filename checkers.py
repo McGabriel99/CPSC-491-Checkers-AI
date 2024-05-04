@@ -19,16 +19,16 @@ class Checkers:
 
     def valid_moves(self, player):
         moves = []
-        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]  # Directions pieces can move
+        directions = [(-1, -1), (-1, 1)] if player == 'w' else [(1, -1), (1, 1)]  # Only forward moves
         for y in range(8):
             for x in range(8):
-                if self.board[y][x].lower() == player:
+                piece = self.board[y][x]
+                if piece.lower() == player:
                     for dy, dx in directions:
                         ny, nx = y + dy, x + dx
                         if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx] == '.':
                             moves.append(((x, y), (nx, ny)))
-                        # Checking for captures
-                        if 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx].lower() != player and self.board[ny][nx] != '.':
+                        elif 0 <= ny < 8 and 0 <= nx < 8 and self.board[ny][nx].lower() != player:
                             ny2, nx2 = ny + dy, nx + dx
                             if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
                                 moves.append(((x, y), (nx2, ny2)))
