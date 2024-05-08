@@ -1,4 +1,5 @@
 import random
+from minimax import *
 
 class Checkers:
     def __init__(self):
@@ -74,15 +75,7 @@ class Checkers:
         return None
 
 
-    def ai_move(self, player_color):
-        moves = []
-        for y in range(8):
-            for x in range(8):
-                piece = self.board[y][x]
-                if piece.lower() == player_color:
-                    piece_moves = self.valid_moves((x, y))
-                    moves.extend(piece_moves)
-        
-        if moves:
-            return random.choice(moves)  # Randomly select one of the available moves
-        return None
+    def ai_move(game, player_color):
+        _, move = minimax(game.board, 3, True, game, float('-inf'), float('inf'))  # Depth set to 3 for simplicity
+        return move
+
