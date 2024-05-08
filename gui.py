@@ -78,11 +78,15 @@ def main():
                 row, col = get_row_col_from_mouse(pos)
                 print(f"Selected piece: {(row, col)}")
                 if selected_piece and (row, col) in [move[1] for move in valid_moves]:
-                    game.make_move(selected_piece, (row, col))
+                    further_moves = game.make_move(selected_piece, (row, col))
                     print(f"Moved from {selected_piece} to {(row, col)}")
-                    selected_piece = None
-                    valid_moves = []
-                    current_player = 'b' if current_player == 'w' else 'w'
+                    if not further_moves:
+                        selected_piece = None
+                        valid_moves = []
+                        current_player = 'b' if current_player == 'w' else 'w'
+                    else:
+                        selected_piece = (row, col)
+                        valid_moves = further_moves
                 elif game.board[col][row] != '.' and game.board[col][row].lower() == current_player:
                     selected_piece = (row, col)
                     valid_moves = game.valid_moves((row, col))

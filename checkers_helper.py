@@ -33,7 +33,10 @@ class Checkers:
                     moves.append(((x, y), (nx2, ny2)))
 
         return moves
-
+    
+    def additional_captures(self, position):
+        # Check if there are additional captures from the new position
+        return [move for move in self.valid_moves(position) if abs(move[1][0] - position[0]) == 2]
 
 
     def make_move(self, start, end):
@@ -41,17 +44,25 @@ class Checkers:
         x2, y2 = end
         self.board[y2][x2] = self.board[y1][x1]  # Move the piece
         self.board[y1][x1] = '.'  # Clear the original position
+        capture_occurred = False  # Flag to check if a capture occurred
 
         # Check if the move is a jump
         if abs(x2 - x1) == 2 or abs(y2 - y1) == 2:
-            jumped_x = x1 + (x2 - x1) // 2
-            jumped_y = y1 + (y2 - y1) // 2
+            jumped_x = (x1 + x2) // 2
+            jumped_y = (y1 + y2) // 2
             self.board[jumped_y][jumped_x] = '.'  # Remove the jumped piece
+            capture_occurred = True
 
-        # check for promotion to king
+        # Check for promotion to king
         if (y2 == 0 and self.board[y2][x2] == 'w') or (y2 == 7 and self.board[y2][x2] == 'b'):
             self.board[y2][x2] = self.board[y2][x2].upper()
             print(f"Promoted to king: {self.board[y2][x2]}")
+
+        if capture_occurred:
+            return self.additional_captures((x2, y2))  # Check for additional captures after the move
+        return None
+
+
 
     # def ai_move(self, player):
     #     moves = self.valid_moves(player)
