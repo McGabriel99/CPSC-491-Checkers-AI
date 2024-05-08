@@ -23,6 +23,7 @@ class Checkers:
         moves = []
         piece = self.board[y][x]
         is_piece_king = self.is_king(piece)
+        print(f"Checking moves for {'King' if is_piece_king else 'Man'} at ({x}, {y})")
         own_color = piece.lower()
         opponent_color = 'b' if own_color == 'w' else 'w'
 
@@ -37,6 +38,8 @@ class Checkers:
                     if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
                         moves.append(((x, y), (nx2, ny2)))
 
+        for move in moves:
+            print(f"Generated move from ({x}, {y}) to {move[1]}")
         return moves
     
     def additional_captures(self, position):
@@ -77,16 +80,12 @@ class Checkers:
         score = 0
         for y, row in enumerate(self.board):
             for x, piece in enumerate(row):
-                if piece.lower() == 'b':  # AI is black
-                    if piece.isupper():  # It's a king
-                        score += 25  # More value for king pieces
-                    else:
-                        score += 5
-                elif piece.lower() == 'w':  # Human is white
-                    if piece.isupper():  # It's a king
-                        score -= 25  # Detract more for opponent kings
-                    else:
-                        score -= 5
+                if piece:
+                    piece_value = 25 if piece.isupper() else 5
+                    piece_score = piece_value if piece.lower() == 'b' else -piece_value
+                    score += piece_score
+                    print(f"Piece {piece} at ({x}, {y}) contributes {piece_score} to score")
+        print(f"Total board evaluation score: {score}")
         return score
     
     def minimax(self, board, depth, maximizing_player, game, alpha, beta):
@@ -105,6 +104,7 @@ class Checkers:
                 alpha = max(alpha, eval)
                 if beta <= alpha:
                     break
+            print(f"At depth {depth}, best move is {best_move} with eval {max_eval if maximizing_player else min_eval}")
             return max_eval, best_move
         else:
             min_eval = float('inf')
