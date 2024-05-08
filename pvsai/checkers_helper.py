@@ -1,5 +1,4 @@
 import random
-from minimax import *
 
 class Checkers:
     def __init__(self):
@@ -73,9 +72,112 @@ class Checkers:
                 # If promoted but no further captures, prevent additional moves
                 return None
         return None
+    
+    def evaluate_board(self):
+        score = 0
+        for y, row in enumerate(self.board):
+            for x, piece in enumerate(row):
+                if piece.lower() == 'b':  # AI is black
+                    if piece.isupper():  # It's a king
+                        score += 25  # More value for king pieces
+                    else:
+                        score += 5
+                elif piece.lower() == 'w':  # Human is white
+                    if piece.isupper():  # It's a king
+                        score -= 25  # Detract more for opponent kings
+                    else:
+                        score -= 5
+        return score
+    
+    def minimax(self, board, depth, maximizing_player, game, alpha, beta):
+        if depth == 0 or self.is_game_over():
+            return self.evaluate_board(), None
+
+        if maximizing_player:
+            max_eval = float('-inf')
+            best_move = None
+            for move in self.get_all_moves('b'):
+                simulation_board = self.simulate_move(move)
+                eval = self.minimax(simulation_board, depth - 1, False, game, alpha, beta)[0]
+                if eval > max_eval:
+                    max_eval = eval
+                    best_move = move
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break
+            return max_eval, best_move
+        else:
+            min_eval = float('inf')
+            best_move = None
+            for move in self.get_all_moves('w'):
+                simulation_board = self.simulate_move(move)
+                eval = self.minimax(simulation_board, depth - 1, True, game, alpha, beta)[0]
+                if eval < min_eval:
+                    min_eval = eval
+                    best_move = move
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break
+            return min_eval, best_move
+        
+    def simulate_move(self, move):
+        """ Simulate a move to evaluate potential board states for Minimax. """
+        # Extract start and end positions from the move
+        start, end = move
+        x1, y1 = start
+        x2, y2 = end
+
+        # Create a deep copy of the board to simulate the move without altering the actual game state
+        new_board = [row[:] for row in self.board]
+        
+        # Perform the move on the new board
+        new_board[y2][x2] = new_board[y1][x1]
+        new_board[y1][x1] = '.'
+
+        # Handle captures
+        if abs(x2 - x1) == 2 or abs(y2 - y1) == 2:
+            jumped_x = (x1 + x2) // 2
+            jumped_y = (y1 + y2) // 2
+            new_board[jumped_y][jumped_x] = '.'
+
+        # Return the new simulated board state
+        return new_board
+    
+    def undo_move(self, move):
+        """ Undo a move (might not be needed if always simulating on copied boards). """
+        pass
+
+    def is_game_over(self):
+        """ Check if the game is over based on remaining pieces and possible moves. """
+        has_black = any('b' in row for row in self.board)
+        has_white = any('w' in row for row in self.board)
+        if not has_black or not has_white:
+            return True  # No pieces left for one player
+
+        # Check if there are any valid moves for any piece
+        for y in range(8):
+            for x in range(8):
+                if self.board[y][x] != '.':
+                    if self.valid_moves((x, y)):
+                        return False  # Game is not over, moves are still possible
+
+        return True  # No moves left
 
 
-    def ai_move(game, player_color):
-        _, move = minimax(game.board, 3, True, game, float('-inf'), float('inf'))  # Depth set to 3 for simplicity
+    def get_all_moves(self, color):
+        """ Get all possible moves for a given player color. """
+        moves = []
+        for y in range(8):
+            for x in range(8):
+                if self.board[y][x].lower() == color:
+                    piece_moves = self.valid_moves((x, y))
+                    for move in piece_moves:
+                        moves.append(((x, y), move[1]))  # Append start and end positions
+        return moves
+
+
+
+    def ai_move(self, game):
+        _, move = self.minimax(self.board, 3, True, game, float('-inf'), float('inf'))  # depth 3 for simplicity
         return move
 
