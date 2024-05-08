@@ -90,7 +90,7 @@ def main():
                     valid_moves = game.valid_moves((row, col))
 
         if current_player == 'b':  # AI's turn
-            move = game.ai_move('b')
+            move = game.ai_move(game)
             if move:
                 game.make_move(move[0], move[1])
             current_player = 'w'  # Switch back to the human player
