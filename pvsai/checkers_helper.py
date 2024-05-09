@@ -22,8 +22,9 @@ class Checkers:
         x, y = piece_position
         moves = []
         piece = self.board[y][x]
+        if piece == '.':
+            return moves  # Early exit if no piece at the given position
         is_piece_king = self.is_king(piece)
-        print(f"Checking moves for {'King' if is_piece_king else 'Man'} at ({x}, {y})")
         own_color = piece.lower()
         opponent_color = 'b' if own_color == 'w' else 'w'
 
@@ -37,9 +38,6 @@ class Checkers:
                     ny2, nx2 = ny + dy, nx + dx
                     if 0 <= ny2 < 8 and 0 <= nx2 < 8 and self.board[ny2][nx2] == '.':
                         moves.append(((x, y), (nx2, ny2)))
-
-        for move in moves:
-            print(f"Generated move from ({x}, {y}) to {move[1]}")
         return moves
     
     def additional_captures(self, position):
@@ -80,29 +78,41 @@ class Checkers:
         score = 0
         for y, row in enumerate(self.board):
             for x, piece in enumerate(row):
-                if piece:
-                    piece_value = 25 if piece.isupper() else 5
-                    piece_score = piece_value if piece.lower() == 'b' else -piece_value
-                    score += piece_score
-                    print(f"Piece {piece} at ({x}, {y}) contributes {piece_score} to score")
-        print(f"Total board evaluation score: {score}")
+                if piece == 'b':
+                    score += 5 + (7 - y) / 2  # Incremental advantage for advancing pieces
+                elif piece == 'B':
+                    score += 25  # Higher value for kings
+                elif piece == 'w':
+                    score -= 5 + y / 2  # Similar logic for white pieces
+                elif piece == 'W':
+                    score -= 25
+                # Adding positional value for controlling the center
+                if x in [3, 4] and y in [3, 4]:
+                    if piece.lower() == 'b':
+                        score += 2
+                    elif piece.lower() == 'w':
+                        score -= 2
         return score
+
     
     def minimax(self, board, depth, maximizing_player, game, alpha, beta):
         if depth == 0 or self.is_game_over():
-            return self.evaluate_board(), None
+            score = self.evaluate_board()
+            print(f"Reached leaf node or game over: score={score}")
+            return score, None
 
         if maximizing_player:
             max_eval = float('-inf')
             best_move = None
             for move in self.get_all_moves('b'):
                 simulation_board = self.simulate_move(move)
-                eval = self.minimax(simulation_board, depth - 1, False, game, alpha, beta)[0]
+                eval, _ = self.minimax(simulation_board, depth - 1, False, game, alpha, beta)
                 if eval > max_eval:
                     max_eval = eval
                     best_move = move
                 alpha = max(alpha, eval)
                 if beta <= alpha:
+                    print(f"Pruning branches at alpha={alpha}, beta={beta}")
                     break
             print(f"At depth {depth}, best move is {best_move} with eval {max_eval if maximizing_player else min_eval}")
             return max_eval, best_move
@@ -111,13 +121,15 @@ class Checkers:
             best_move = None
             for move in self.get_all_moves('w'):
                 simulation_board = self.simulate_move(move)
-                eval = self.minimax(simulation_board, depth - 1, True, game, alpha, beta)[0]
+                eval, _ = self.minimax(simulation_board, depth - 1, True, game, alpha, beta)
                 if eval < min_eval:
                     min_eval = eval
                     best_move = move
                 beta = min(beta, eval)
                 if beta <= alpha:
+                    print(f"Pruning branches at alpha={alpha}, beta={beta}")
                     break
+            print(f"At depth {depth}, best move for minimizing player is {best_move} with eval {min_eval}")
             return min_eval, best_move
         
     def simulate_move(self, move):
