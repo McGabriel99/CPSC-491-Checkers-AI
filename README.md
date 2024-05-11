@@ -39,17 +39,17 @@ This project focuses on the development of an enhanced Checkers game, utilizing 
 
 **Player vs. Player mode**
 
-1. `cd pvp/
+1. `cd pvp/`
 
-2. `python pvp_gui.py
+2. `python pvp_gui.py`
 
 3. Click to play
 
 **Player vs. AI mode**
 
-1. `cd pvsai/
+1. `cd pvsai/`
 
-2. `python gui.py
+2. `python gui.py`
 
 3. Click to play
 
