@@ -59,5 +59,5 @@ This project focuses on the development of an enhanced Checkers game, utilizing 
 
 2. Follow instructions on terminal
 
-##Future Work
+## Future Work
 Further enhancements could include improving AI decision-making algorithms, introducing networked multiplayer capabilities, and expanding the graphical user interface to support more interactive elements and animations.
